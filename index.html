@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fitts' Law Experiment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fa;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #2b2d42;
+    }
+    label {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    input {
+      padding: 6px 10px;
+      margin-left: 10px;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      font-size: 16px;
+      background: #3a86ff;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #265d97;
+    }
+    #experimentPage {
+      display: none;
+      background: #ffffff;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
+    #target {
+      position: absolute;
+      border-radius: 50%;
+      cursor: pointer;
+      background: #ff006e;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Start Page -->
+  <div id="startPage">
+    <h2>Fitts' Law Experiment</h2>
+    <label>Number of trials: 
+      <input type="number" id="numTrials" value="10" min="1" max="500">
+    </label>
+    <br>
+    <button id="startBtn">Start Experiment</button>
+  </div>
+
+  <!-- Experiment Page -->
+  <div id="experimentPage">
+    <div id="target"></div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script> 
+</body>
+</html>
