@@ -2,82 +2,541 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fitts' Law Experiment</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Fitts' Law Neural Network Experiment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    
     body {
-      font-family: 'Inter', sans-serif;
-      background: #f5f7fa;
-      color: #222;
+      font-family: 'Source Code Pro', monospace;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      color: #00ff88;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
+      overflow: hidden;
+      position: relative;
     }
-    h2 {
-      margin-bottom: 20px;
-      color: #2b2d42;
-    }
-    label {
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-    input {
-      padding: 6px 10px;
-      margin-left: 10px;
-      font-size: 14px;
-    }
-    button {
-      padding: 10px 20px;
-      margin-top: 20px;
-      font-size: 16px;
-      background: #3a86ff;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #265d97;
-    }
-    #experimentPage {
-      display: none;
-      background: #ffffff;
+    
+    /* Matrix-style background animation */
+    .matrix-bg {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.1;
       overflow: hidden;
     }
+    
+    .matrix-column {
+      position: absolute;
+      top: -100%;
+      font-size: 14px;
+      color: #00ff88;
+      animation: matrix-fall linear infinite;
+      white-space: pre;
+    }
+    
+    @keyframes matrix-fall {
+      0% { top: -100%; }
+      100% { top: 100%; }
+    }
+    
+    /* Glitch effect */
+    @keyframes glitch {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+    }
+    
+    .glitch {
+      animation: glitch 0.3s ease-in-out infinite alternate;
+    }
+    
+    /* Neon glow effect */
+    .neon-glow {
+      text-shadow: 
+        0 0 5px #00ff88,
+        0 0 10px #00ff88,
+        0 0 15px #00ff88,
+        0 0 20px #00ff88;
+    }
+    
+    .terminal-window {
+      background: rgba(10, 10, 10, 0.9);
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 
+        0 0 20px rgba(0, 255, 136, 0.3),
+        inset 0 0 20px rgba(0, 255, 136, 0.1);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .terminal-window::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 48%, rgba(255, 0, 255, 0.1) 50%, transparent 52%);
+      animation: scanner 3s linear infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes scanner {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .terminal-dots {
+      display: flex;
+      gap: 8px;
+      margin-right: 15px;
+    }
+    
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ff3366;
+      box-shadow: 0 0 10px currentColor;
+    }
+    
+    .dot:nth-child(2) { background: #ffff33; }
+    .dot:nth-child(3) { background: #33ff33; }
+    
+    h2 {
+      margin-bottom: 25px;
+      font-size: 24px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: linear-gradient(45deg, #00ff88, #ff0088, #8800ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: hue-rotate 3s linear infinite;
+    }
+    
+    @keyframes hue-rotate {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+    
+    label {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: #00ffff;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    input {
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #ff0088;
+      border-radius: 5px;
+      padding: 8px 12px;
+      margin-left: 15px;
+      font-size: 16px;
+      color: #00ff88;
+      font-family: 'Source Code Pro', monospace;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255, 0, 136, 0.3);
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #00ff88;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+      transform: scale(1.05);
+    }
+    
+    button {
+      background: linear-gradient(45deg, #ff0088, #8800ff);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 30px;
+      margin-top: 25px;
+      font-size: 18px;
+      color: white;
+      font-family: 'Source Code Pro', monospace;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 
+        0 0 20px rgba(255, 0, 136, 0.4),
+        0 4px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 
+        0 0 30px rgba(255, 0, 136, 0.6),
+        0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+    
+    #experimentPage {
+      display: none;
+      background: radial-gradient(circle at 50% 50%, #0f0f23 0%, #000000 100%);
+      position: fixed;
+      top: 0; 
+      left: 0;
+      width: 100%; 
+      height: 100%;
+      overflow: hidden;
+    }
+    
     #target {
       position: absolute;
       border-radius: 50%;
-      cursor: pointer;
-      background: #ff006e;
-      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      cursor: crosshair;
+      background: radial-gradient(circle at 30% 30%, #ff0088, #8800ff);
+      box-shadow: 
+        0 0 20px #ff0088,
+        0 0 40px #ff0088,
+        0 0 60px #ff0088,
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
       display: none;
+      transition: all 0.2s ease;
+      border: 3px solid #00ffff;
+      animation: pulse-target 1.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes pulse-target {
+      0% { 
+        box-shadow: 
+          0 0 20px #ff0088,
+          0 0 40px #ff0088,
+          0 0 60px #ff0088;
+      }
+      100% { 
+        box-shadow: 
+          0 0 30px #ff0088,
+          0 0 60px #ff0088,
+          0 0 90px #ff0088;
+      }
+    }
+    
+    #target:hover {
+      transform: scale(1.1);
+      border-color: #ffff00;
+      animation-duration: 0.5s;
+    }
+    
+    .stats-overlay {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #00ff88;
+      border-radius: 8px;
+      padding: 15px;
+      color: #00ff88;
+      font-size: 14px;
+      font-family: 'Source Code Pro', monospace;
+      backdrop-filter: blur(10px);
+      display: none;
+    }
+    
+    .crosshair {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .crosshair::before,
+    .crosshair::after {
+      content: '';
+      position: absolute;
+      background: #00ffff;
+      box-shadow: 0 0 10px #00ffff;
+    }
+    
+    .crosshair::before {
+      width: 20px;
+      height: 2px;
+      top: 9px;
+      left: 0;
+    }
+    
+    .crosshair::after {
+      width: 2px;
+      height: 20px;
+      top: 0;
+      left: 9px;
+    }
+    
+    .progress-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 3px;
+      overflow: hidden;
+      display: none;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff88, #00ffff, #ff0088);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 3px;
     }
   </style>
 </head>
 <body>
+  <!-- Matrix Background -->
+  <div class="matrix-bg" id="matrixBg"></div>
+  
+  <!-- Crosshair -->
+  <div class="crosshair" id="crosshair"></div>
+
   <!-- Start Page -->
   <div id="startPage">
-    <h2>Fitts' Law Experiment</h2>
-    <label>Number of trials: 
-      <input type="number" id="numTrials" value="10" min="1" max="500">
-    </label>
-    <br>
-    <button id="startBtn">Start Experiment</button>
+    <div class="terminal-window">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <span class="neon-glow">NEURAL_INTERFACE_v2.1</span>
+      </div>
+      
+      <h2 class="glitch">⚡ FITTS' LAW EXPERIMENT ⚡</h2>
+      
+      <label class="neon-glow">
+        >> TRIAL_COUNT.exe: 
+        <input type="number" id="numTrials" value="10" min="1" max="500">
+      </label>
+      <br>
+      <button id="startBtn">INITIALIZE PROTOCOL</button>
+    </div>
   </div>
 
   <!-- Experiment Page -->
   <div id="experimentPage">
+    <div class="stats-overlay" id="statsOverlay">
+      <div>TRIAL: <span id="currentTrial">0</span>/<span id="totalTrialsDisplay">0</span></div>
+      <div>ERRORS: <span id="errorCount">0</span></div>
+      <div>STATUS: <span id="status">ACTIVE</span></div>
+    </div>
+    
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    
     <div id="target"></div>
   </div>
 
-  <script src="config.js"></script>
-  <script src="script.js"></script> 
+  <script>
+    // Matrix background animation
+    function createMatrix() {
+      const matrix = document.getElementById('matrixBg');
+      const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEF';
+      
+      for (let i = 0; i < 20; i++) {
+        const column = document.createElement('div');
+        column.className = 'matrix-column';
+        column.style.left = Math.random() * 100 + '%';
+        column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        column.style.animationDelay = Math.random() * 2 + 's';
+        
+        let text = '';
+        for (let j = 0; j < 20; j++) {
+          text += chars[Math.floor(Math.random() * chars.length)] + '\n';
+        }
+        column.textContent = text;
+        matrix.appendChild(column);
+      }
+    }
+    
+    createMatrix();
+
+    let trialCount = 0, totalTrials = 0;
+    let startTime, startX, startY, errors = 0;
+
+    // Fixed variations
+    const sizes = [64, 128, 196, 256];
+    const distances = [200, 300, 400, 500];
+
+    const target = document.getElementById("target");
+    const startPage = document.getElementById("startPage");
+    const experimentPage = document.getElementById("experimentPage");
+    const statsOverlay = document.getElementById("statsOverlay");
+    const progressBar = document.getElementById("progressBar");
+    const crosshair = document.getElementById("crosshair");
+
+    // Crosshair follows mouse
+    document.addEventListener('mousemove', (e) => {
+      crosshair.style.left = (e.clientX - 10) + 'px';
+      crosshair.style.top = (e.clientY - 10) + 'px';
+    });
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+      totalTrials = parseInt(document.getElementById("numTrials").value);
+      trialCount = 0;
+      errors = 0;
+      
+      startPage.style.display = "none";
+      experimentPage.style.display = "block";
+      statsOverlay.style.display = "block";
+      progressBar.style.display = "block";
+      crosshair.style.display = "block";
+      
+      document.getElementById("totalTrialsDisplay").textContent = totalTrials;
+      nextTrial();
+    });
+
+    function nextTrial() {
+      if (trialCount >= totalTrials) {
+        // Completion effect
+        target.style.display = "none";
+        document.body.style.background = "linear-gradient(45deg, #00ff88, #ff0088, #8800ff)";
+        document.body.innerHTML += '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;color:white;text-shadow:0 0 20px white;font-weight:700;text-align:center;">EXPERIMENT COMPLETE<br><span style="font-size:24px;">NEURAL INTERFACE DISCONNECTED</span></div>';
+        
+        setTimeout(() => {
+          location.reload();
+        }, 3000);
+        return;
+      }
+
+      // Update UI
+      document.getElementById("currentTrial").textContent = trialCount + 1;
+      document.getElementById("errorCount").textContent = errors;
+      document.getElementById("progressFill").style.width = ((trialCount / totalTrials) * 100) + '%';
+
+      // Randomly pick from fixed sets
+      const size = sizes[Math.floor(Math.random() * sizes.length)];
+      const distance = distances[Math.floor(Math.random() * distances.length)];
+      const direction = Math.random() < 0.5 ? -1 : 1;
+
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+
+      startX = centerX - (direction * distance / 2);
+      startY = centerY;
+
+      const targetX = centerX + (direction * distance / 2);
+
+      // Position target
+      target.style.width = size + "px";
+      target.style.height = size + "px";
+      target.style.left = (targetX - size / 2) + "px";
+      target.style.top = (centerY - size / 2) + "px";
+      target.style.display = "block";
+
+      startTime = performance.now();
+
+      target.onclick = () => {
+        const endTime = performance.now();
+        const timeTaken = (endTime - startTime) / 1000; // sec
+
+        const dx = targetX - startX;
+        const dy = 0;
+        const distTraveled = Math.sqrt(dx * dx + dy * dy);
+
+        // Visual feedback
+        target.style.background = "radial-gradient(circle, #00ff88, #00ffff)";
+        target.style.transform = "scale(1.2)";
+        
+        setTimeout(() => {
+          target.style.background = "radial-gradient(circle at 30% 30%, #ff0088, #8800ff)";
+          target.style.transform = "scale(1)";
+        }, 200);
+
+        // Save row
+        const row = {
+          Distance: distance,
+          Size: size,
+          Direction: direction,
+          Time: timeTaken,
+          "Distance Traveled": distTraveled,
+          Errors: errors
+        };
+        sendToSheet(row);
+
+        errors = 0;
+        trialCount++;
+        setTimeout(nextTrial, 300);
+      };
+
+      document.body.onclick = (e) => {
+        if (e.target !== target && experimentPage.style.display === "block") {
+          errors++;
+          document.getElementById("errorCount").textContent = errors;
+          
+          // Error effect
+          document.body.style.animation = "glitch 0.1s";
+          setTimeout(() => {
+            document.body.style.animation = "";
+          }, 100);
+        }
+      };
+    }
+
+    function sendToSheet(row) {
+      fetch("https://script.google.com/macros/s/AKfycbziTDIbuLvdpNQHMw-gKawMghwSnpbhKz936Bs83JxN8gKXgUV0tyq15bqA9mvywBuf/exec", {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify(row),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(() => console.log("Data transmitted to neural network"))
+      .catch(err => console.error("Transmission error:", err));
+    }
+  </script>
 </body>
 </html>
